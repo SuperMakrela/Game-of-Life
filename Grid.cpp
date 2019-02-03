@@ -41,8 +41,8 @@ void Grid::generateNext()
 		for (int c = 0; c < m_collumns; c++)
 		{
 			int neighbours;
-			if (wrapEdges) neighbours = countNeighbours(r, c);
-			else neighbours = countNeighbours2(r, c);
+			if (wrapEdges) neighbours = countNeighbours_WrappedEdges(r, c);
+			else neighbours = countNeighbours_NormalEdges(r, c);
 			cell.update(m_grid[r * m_collumns + c], neighbours);
 			m_next[r * m_collumns + c] = cell.nextState();
 			cellsAlive += cell.nextState();
@@ -65,7 +65,6 @@ bool Grid::getCellState(int cellNumber)
 void Grid::setCellState(int cellNumber, bool state)
 {
 	m_grid[cellNumber] = state;
-
 }
 
 void Grid::wait(int time)
@@ -73,7 +72,7 @@ void Grid::wait(int time)
 	std::this_thread::sleep_for(std::chrono::milliseconds(time));
 }
 
-int Grid::countNeighbours(int r, int c) {
+int Grid::countNeighbours_WrappedEdges(int r, int c) {
 	int neighbours = 0;
 	for (int x = -1; x < 2; ++x) {
 		for (int y = -1; y < 2; ++y) {
@@ -86,7 +85,7 @@ int Grid::countNeighbours(int r, int c) {
 	return neighbours;
 }
 
-int Grid::countNeighbours2(int r, int c) {
+int Grid::countNeighbours_NormalEdges(int r, int c) {
 	int neighbours = 0;
 	for (int x = -1; x < 2; ++x) {
 		for (int y = -1; y < 2; ++y) {

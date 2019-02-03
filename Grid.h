@@ -10,7 +10,7 @@ class Grid
 private:
 	int m_rows;
 	int m_collumns;
-	std::vector <char> m_grid; // test with bool
+	std::vector <char> m_grid;
 	std::vector <char> m_next;
 public:
 	Grid(int rows, int collumns);
@@ -21,8 +21,8 @@ public:
 	void wait(int time);
 private:
 	void updateGrid();
-	int countNeighbours(int r, int c);
-	int countNeighbours2(int r, int c);
+	int countNeighbours_WrappedEdges(int r, int c);
+	int countNeighbours_NormalEdges(int r, int c);
 public:
 	bool getCellState(int cellNumber);
 	void setCellState(int cellNumber, bool state);

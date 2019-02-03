@@ -20,14 +20,14 @@ private:
 	void update();
 	void render();
 	sf::RenderWindow window;
-	sf::RectangleShape square;
+	sf::RectangleShape cellSquare;
 	bool pauseGame = 0;
 	Grid grid;
 	const int delay[8] = { 20,40,60,100,150,250,350,500 };
 	int currentDelayIndex = 3;
 	sf::Font font;
 	sf::Text text;
-	sf::RectangleShape line;
-	sf::RectangleShape square2;
+	sf::RectangleShape menuLine;
+	sf::RectangleShape rulesSquare;
 	const float menuHeight = rows * cellSize;
 };

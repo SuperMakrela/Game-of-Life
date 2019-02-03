@@ -4,18 +4,18 @@
 Game::Game(int windowSizeX, int windowSizeY) :
 	window(sf::VideoMode(windowSizeX, windowSizeY), "Game of Life", sf::Style::Titlebar | sf::Style::Close),
 	cellSize(10), gapSize(1), rows(static_cast <int> (windowSizeY / cellSize) - 10), collumns(static_cast <int> (windowSizeX / cellSize)),
-	square{ sf::Vector2f(cellSize - gapSize, cellSize - gapSize) }, grid(rows, collumns), square2{ sf::Vector2f(19.f,19.f) }
+	cellSquare{ sf::Vector2f(cellSize - gapSize, cellSize - gapSize) }, grid(rows, collumns), rulesSquare{ sf::Vector2f(19.f,19.f) }
 {
 	::ShowWindow(::GetConsoleWindow(), SW_HIDE);
 	window.setFramerateLimit(60);
-	square.setFillColor(sf::Color::Green);
-	square2.setFillColor(sf::Color::Green);
+	cellSquare.setFillColor(sf::Color::Green);
+	rulesSquare.setFillColor(sf::Color::Green);
 
 	font.loadFromFile("OpenSans-Regular.ttf");
 	text.setFont(font);
 
-	line.setSize(sf::Vector2f(static_cast <float> (windowSizeX), 2.f));
-	line.setFillColor(sf::Color::White);
+	menuLine.setSize(sf::Vector2f(static_cast <float> (windowSizeX), 2.f));
+	menuLine.setFillColor(sf::Color::White);
 }
 
 Game::~Game()
@@ -54,7 +54,7 @@ void Game::processEvents()
 		case sf::Event::MouseButtonPressed:
 			if (event.mouseButton.button == sf::Mouse::Left)
 			{
-				//grid
+				//grid input
 				int collumn = static_cast <int>(event.mouseButton.x / cellSize);
 				int row = static_cast <int>(event.mouseButton.y / cellSize);
 				if (row < rows && collumn < collumns) {
@@ -64,7 +64,8 @@ void Game::processEvents()
 				}
 				else if (event.mouseButton.x > 150 && event.mouseButton.x < 330 && event.mouseButton.y > menuHeight + 60 && event.mouseButton.y < menuHeight + 100)
 				{
-					//menu
+					//menu input - mouse
+					//changing rules
 					collumn = static_cast <int>(event.mouseButton.x - 150) / 20;
 					row = static_cast <int>(event.mouseButton.y - menuHeight - 60) / 20;
 					if (row) grid.cell.rulesForDeadCell[collumn] = !grid.cell.rulesForDeadCell[collumn];
@@ -75,8 +76,8 @@ void Game::processEvents()
 					{
 						//space
 						pauseGame = !pauseGame;
-						if (pauseGame) square.setFillColor(sf::Color::Red);
-						else square.setFillColor(sf::Color::Green);
+						if (pauseGame) cellSquare.setFillColor(sf::Color::Red);
+						else cellSquare.setFillColor(sf::Color::Green);
 					}
 					else if (event.mouseButton.x > 150 && event.mouseButton.x < 271)
 					{
@@ -95,7 +96,7 @@ void Game::processEvents()
 						//S
 						grid.generateNext();
 						pauseGame = 1;
-						square.setFillColor(sf::Color::Red);
+						cellSquare.setFillColor(sf::Color::Red);
 					}
 					else if (event.mouseButton.x > 528 && event.mouseButton.x < 650)
 					{
@@ -120,7 +121,7 @@ void Game::processEvents()
 				}
 			}
 			break;
-		case sf::Event::KeyPressed:
+		case sf::Event::KeyPressed: //keyboard input
 			switch (event.key.code)
 			{
 			case sf::Keyboard::C:
@@ -134,12 +135,12 @@ void Game::processEvents()
 			case sf::Keyboard::S:
 				grid.generateNext();
 				pauseGame = 1;
-				square.setFillColor(sf::Color::Red);
+				cellSquare.setFillColor(sf::Color::Red);
 				break;
 			case sf::Keyboard::Space:
 				pauseGame = !pauseGame;
-				if (pauseGame) square.setFillColor(sf::Color::Red);
-				else square.setFillColor(sf::Color::Green);
+				if (pauseGame) cellSquare.setFillColor(sf::Color::Red);
+				else cellSquare.setFillColor(sf::Color::Green);
 				break;
 			case sf::Keyboard::Left:
 				if (currentDelayIndex < 7) currentDelayIndex++;
@@ -182,20 +183,19 @@ void Game::render()
 		{
 			if (grid.getCellState(r*collumns + c)) {
 				drawPosition_x = (r * collumns + c) % collumns * cellSize;
-				square.setPosition(sf::Vector2f(drawPosition_x, drawPosition_y));
-				window.draw(square);
+				cellSquare.setPosition(sf::Vector2f(drawPosition_x, drawPosition_y));
+				window.draw(cellSquare);
 			}
 		}
 		drawPosition_y += cellSize;
 	}
 
-	//menu
+	//drawing top of the menu
 
-	line.setPosition(0.f, menuHeight);
-	window.draw(line);
-	line.setPosition(0.f, menuHeight + 32);
-	window.draw(line);
-
+	menuLine.setPosition(0.f, menuHeight);
+	window.draw(menuLine);
+	menuLine.setPosition(0.f, menuHeight + 32);
+	window.draw(menuLine);
 
 	text.setString("[Space] Pause\t[R] Randomize\t[C] Clear\t[S] Single step\t[E] Edge mode\t[Left/Right arrow] Speed\t[D] Default rules");
 	text.setCharacterSize(18);
@@ -216,52 +216,37 @@ void Game::render()
 	text.setPosition(150.f, menuHeight + 40);
 	window.draw(text);
 
-
+	//drawing rules
 	drawPosition_x = 150;
 	drawPosition_y = menuHeight + 60;
+
 	text.setString("Alive dies:");
-
-	text.setCharacterSize(14);
-	text.setFillColor(sf::Color::White);
-	text.setPosition(0.f, drawPosition_y + 4);
-	window.draw(text);
-
-	text.setCharacterSize(10);
-	text.setFillColor(sf::Color::Black);
-	for (int i = 0; i < 9; i++)
+	for (int textRow = 0; textRow < 2; textRow++)
 	{
-		if (grid.cell.rulesForAliveCell[i]) square2.setFillColor(sf::Color::White);
-		else square2.setFillColor(sf::Color::Black);
-
-		square2.setPosition(sf::Vector2f(drawPosition_x + i * 20, drawPosition_y));
-		window.draw(square2);
-		text.setPosition(sf::Vector2f(drawPosition_x + i * 20 + 1, drawPosition_y));
-		text.setString(static_cast <char>('0' + i));
+		text.setCharacterSize(14);
+		text.setFillColor(sf::Color::White);
+		text.setPosition(0.f, drawPosition_y + 4);
 		window.draw(text);
-	}
-	drawPosition_y += 20;
-	text.setString("Dead becomes alive:");
 
-	text.setCharacterSize(14);
-	text.setFillColor(sf::Color::White);
-	text.setPosition(0.f, drawPosition_y + 4);
-	window.draw(text);
+		text.setCharacterSize(10);
+		text.setFillColor(sf::Color::Black);
+		for (int i = 0; i < 9; i++)
+		{
+			if ((textRow && grid.cell.rulesForDeadCell[i]) || (!textRow && grid.cell.rulesForAliveCell[i]))
+				rulesSquare.setFillColor(sf::Color::White);
+			else rulesSquare.setFillColor(sf::Color::Black);
 
-	text.setCharacterSize(10);
-	text.setFillColor(sf::Color::Black);
-	for (int i = 0; i < 9; i++)
-	{
-
-		if (grid.cell.rulesForDeadCell[i]) square2.setFillColor(sf::Color::White);
-		else square2.setFillColor(sf::Color::Black);
-
-		square2.setPosition(sf::Vector2f(drawPosition_x + i * 20, drawPosition_y));
-		window.draw(square2);
-		text.setPosition(sf::Vector2f(drawPosition_x + i * 20 + 1, drawPosition_y));
-		text.setString(static_cast <char>('0' + i));
-		window.draw(text);
+			rulesSquare.setPosition(sf::Vector2f(drawPosition_x + i * 20, drawPosition_y));
+			window.draw(rulesSquare);
+			text.setPosition(sf::Vector2f(drawPosition_x + i * 20 + 1, drawPosition_y));
+			text.setString(static_cast <char>('0' + i));
+			window.draw(text);
+		}
+		drawPosition_y += 20;
+		text.setString("Dead becomes alive:");
 	}
 
+	//drawing info
 	std::string s;
 	text.setFillColor(sf::Color::White);
 	text.setCharacterSize(14);

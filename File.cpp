@@ -36,5 +36,4 @@ void File::loadRules()
 			aliveDies.push_back(num);
 		}
 	}
-
 }
