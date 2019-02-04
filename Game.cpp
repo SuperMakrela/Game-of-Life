@@ -24,6 +24,7 @@ Game::~Game()
 
 void Game::run()
 {
+
 	grid.randomize();
 
 	while (window.isOpen())
@@ -62,16 +63,16 @@ void Game::processEvents()
 					if (!grid.getCellState(collumn + row * collumns)) grid.cellsAlive--;
 					else grid.cellsAlive++;
 				}
-				else if (event.mouseButton.x > 150 && event.mouseButton.x < 330 && event.mouseButton.y > menuHeight + 60 && event.mouseButton.y < menuHeight + 100)
+				else if (event.mouseButton.x > 150 && event.mouseButton.x < 330 && event.mouseButton.y > menuPosition + 60 && event.mouseButton.y < menuPosition + 100)
 				{
 					//menu input - mouse
 					//changing rules
 					collumn = static_cast <int>(event.mouseButton.x - 150) / 20;
-					row = static_cast <int>(event.mouseButton.y - menuHeight - 60) / 20;
+					row = static_cast <int>(event.mouseButton.y - menuPosition - 60) / 20;
 					if (row) grid.cell.rulesForDeadCell[collumn] = !grid.cell.rulesForDeadCell[collumn];
 					else  grid.cell.rulesForAliveCell[collumn] = !grid.cell.rulesForAliveCell[collumn];
 				}
-				else if (event.mouseButton.y > menuHeight + 10 && event.mouseButton.y < menuHeight + 28) {
+				else if (event.mouseButton.y > menuPosition + 10 && event.mouseButton.y < menuPosition + 28) {
 					if (event.mouseButton.x > 10 && event.mouseButton.x < 130)
 					{
 						//space
@@ -173,109 +174,64 @@ void Game::render()
 {
 	window.clear(sf::Color::Black);
 
-	float drawPosition_x;
-	float drawPosition_y = 0;
-
 	for (int r = 0; r < rows; r++)
 	{
-		drawPosition_y = r * cellSize;
+		drawPosY = r * cellSize;
 		for (int c = 0; c < collumns; c++)
 		{
 			if (grid.getCellState(r*collumns + c)) {
-				drawPosition_x = (r * collumns + c) % collumns * cellSize;
-				cellSquare.setPosition(sf::Vector2f(drawPosition_x, drawPosition_y));
+				drawPosX = (r * collumns + c) % collumns * cellSize;
+				cellSquare.setPosition(sf::Vector2f(drawPosX, drawPosY));
 				window.draw(cellSquare);
 			}
 		}
-		drawPosition_y += cellSize;
+		drawPosY += cellSize;
 	}
 
-	//drawing top of the menu
-
-	menuLine.setPosition(0.f, menuHeight);
+	//top of the menu
+	menuLine.setPosition(0.f, menuPosition);
 	window.draw(menuLine);
-	menuLine.setPosition(0.f, menuHeight + 32);
+	menuLine.setPosition(0.f, menuPosition + 32);
 	window.draw(menuLine);
 
-	text.setString("[Space] Pause\t[R] Randomize\t[C] Clear\t[S] Single step\t[E] Edge mode\t[Left/Right arrow] Speed\t[D] Default rules");
-	text.setCharacterSize(18);
-	text.setFillColor(sf::Color::Magenta);
-	text.setPosition(10.f, menuHeight + 5);
-	window.draw(text);
+	drawText(std::string("[Space] Pause\t[R] Randomize\t[C] Clear\t[S] Single step\t[E]\ Edge mode\t\[Left/Right arrow]\
+ Speed\t[D] Default rules"), 18, 10.f, menuPosition + 5, sf::Color::Magenta);
+	drawText(std::string("RULES:"), 24, 0.f, menuPosition + 35, sf::Color::White, sf::Text::Underlined);
+	drawText(std::string("Number of neighbours:"), 14, 150.f, menuPosition + 40);
 
-	text.setStyle(sf::Text::Underlined);
-	text.setString("RULES:");
-	text.setCharacterSize(24);
-	text.setFillColor(sf::Color::White);
-	text.setPosition(0.f, menuHeight + 35);
-	window.draw(text);
-	text.setStyle(sf::Text::Regular);
-
-	text.setString("Number of neighbours:");
-	text.setCharacterSize(14);
-	text.setPosition(150.f, menuHeight + 40);
-	window.draw(text);
-
-	//drawing rules
-	drawPosition_x = 150;
-	drawPosition_y = menuHeight + 60;
-
-	text.setString("Alive dies:");
+	//rules
+	drawPosX = 150;
+	drawPosY = menuPosition + 60;
+	drawText(std::string("Alive dies:"), 14, 0.f, drawPosY + 4);
+	drawText(std::string("Dead becomes alive:"), 14, 0.f, drawPosY + 24);
 	for (int textRow = 0; textRow < 2; textRow++)
 	{
-		text.setCharacterSize(14);
-		text.setFillColor(sf::Color::White);
-		text.setPosition(0.f, drawPosition_y + 4);
-		window.draw(text);
-
-		text.setCharacterSize(10);
-		text.setFillColor(sf::Color::Black);
 		for (int i = 0; i < 9; i++)
 		{
 			if ((textRow && grid.cell.rulesForDeadCell[i]) || (!textRow && grid.cell.rulesForAliveCell[i]))
 				rulesSquare.setFillColor(sf::Color::White);
 			else rulesSquare.setFillColor(sf::Color::Black);
-
-			rulesSquare.setPosition(sf::Vector2f(drawPosition_x + i * 20, drawPosition_y));
+			rulesSquare.setPosition(sf::Vector2f(drawPosX + i * 20, drawPosY));
 			window.draw(rulesSquare);
-			text.setPosition(sf::Vector2f(drawPosition_x + i * 20 + 1, drawPosition_y));
-			text.setString(static_cast <char>('0' + i));
-			window.draw(text);
+			drawText(std::to_string(i), 10, drawPosX + 1 + i * 20, drawPosY, sf::Color::Black);
 		}
-		drawPosition_y += 20;
-		text.setString("Dead becomes alive:");
+		drawPosY += 20;
 	}
-
-	//drawing info
-	std::string s;
-	text.setFillColor(sf::Color::White);
-	text.setCharacterSize(14);
-
-	s = "Delay: ";
-	s.append(std::to_string(delay[currentDelayIndex]));
-	s.append(" ms");
-	text.setString(s);
-	text.setPosition(400.f, menuHeight + 40);
-	window.draw(text);
-
-	s = "Edge mode: ";
-	if (grid.wrapEdges) s.append("Wrapped");
-	else s.append("Normal");
-	text.setString(s);
-	text.setPosition(400.f, menuHeight + 60);
-	window.draw(text);
-
-	s = "Current generation: ";
-	s.append(std::to_string(grid.currentGeneration));
-	text.setString(s);
-	text.setPosition(600.f, menuHeight + 40);
-	window.draw(text);
-
-	s = "Cells alive: ";
-	s.append(std::to_string(grid.cellsAlive));
-	text.setString(s);
-	text.setPosition(600.f, menuHeight + 60);
-	window.draw(text);
+	//info
+	drawText(std::string("Delay: ").append(std::to_string(delay[currentDelayIndex])).append(" ms"), 14, 400.f, menuPosition + 40);
+	drawText(std::string("Edge mode: ").append(grid.wrapEdges ? "Wrapped" : "Normal"), 14, 400.f, menuPosition + 60);
+	drawText(std::string("Current generation: ").append(std::to_string(grid.currentGeneration)), 14, 600.f, menuPosition + 40);
+	drawText(std::string("Cells alive: ").append(std::to_string(grid.cellsAlive)), 14, 600.f, menuPosition + 60);
 
 	window.display();
+}
+
+void Game::drawText(std::string message, int size, float posX, float posY, sf::Color color, sf::Text::Style style)
+{
+	text.setString(message);
+	text.setCharacterSize(size);
+	text.setPosition(posX, posY);
+	text.setFillColor(color);
+	text.setStyle(style);
+	window.draw(text);
 }
