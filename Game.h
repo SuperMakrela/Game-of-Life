@@ -29,5 +29,8 @@ private:
 	sf::Text text;
 	sf::RectangleShape menuLine;
 	sf::RectangleShape rulesSquare;
-	const float menuHeight = rows * cellSize;
+	const float menuPosition = rows * cellSize;
+	float drawPosX;
+	float drawPosY;
+	void drawText(std::string text, int size, float posX, float posY, sf::Color color = sf::Color::White, sf::Text::Style style = sf::Text::Regular);
 };
