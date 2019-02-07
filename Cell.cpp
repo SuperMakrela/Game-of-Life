@@ -10,7 +10,7 @@ Cell::~Cell()
 {
 }
 
-int Cell::nextState()
+bool Cell::nextState()
 {
 	if (rulesForDeadCell[m_neighbours] && !isAlive)  return ALIVE;
 	else if (rulesForAliveCell[m_neighbours] && isAlive)  return DEAD;

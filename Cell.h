@@ -15,8 +15,8 @@ private:
 	int m_neighbours;
 	File file;
 public:
-	int nextState();
 	void update(bool state, int neighbours);
+	bool nextState();
 	bool rulesForDeadCell[9];
 	bool rulesForAliveCell[9];
 	void setDefaultRules();
