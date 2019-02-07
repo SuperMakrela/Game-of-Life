@@ -10,7 +10,7 @@ class Game
 private:
 	const float cellSize;
 	const float gapSize;
-	const int rows, collumns;
+	const int rows, columns;
 public:
 	Game(int windowSizeX, int windowSizeY);
 	~Game();
@@ -32,5 +32,5 @@ private:
 	const float menuPosition = rows * cellSize;
 	float drawPosX;
 	float drawPosY;
-	void drawText(std::string text, int size, float posX, float posY, sf::Color color = sf::Color::White, sf::Text::Style style = sf::Text::Regular);
+	void drawText(int size, std::string text, float posX, float posY, sf::Color color = sf::Color::White, sf::Text::Style style = sf::Text::Regular);
 };

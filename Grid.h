@@ -9,7 +9,7 @@ class Grid
 {
 private:
 	int m_rows;
-	int m_collumns;
+	int m_columns;
 	std::vector <char> m_grid;
 	std::vector <char> m_next;
 public:
