@@ -1,10 +1,10 @@
 #include "Grid.h"   
 
 
-Grid::Grid(int rows, int collumns) : m_rows(rows), m_collumns(collumns)
+Grid::Grid(int rows, int collumns) : m_rows(rows), m_columns(collumns)
 {
-	m_grid.resize(m_rows*m_collumns);
-	m_next.resize(m_rows*m_collumns);
+	m_grid.resize(m_rows*m_columns);
+	m_next.resize(m_rows*m_columns);
 	srand((unsigned int)time(NULL));
 }
 
@@ -18,10 +18,10 @@ void Grid::randomize()
 	cellsAlive = 0;
 	for (int r = 0; r < m_rows; r++)
 	{
-		for (int c = 0; c < m_collumns; c++)
+		for (int c = 0; c < m_columns; c++)
 		{
-			m_grid[r*m_collumns + c] = rand() & 1;
-			cellsAlive += m_grid[r*m_collumns + c];
+			m_grid[r*m_columns + c] = rand() & 1;
+			cellsAlive += m_grid[r*m_columns + c];
 		}
 	}
 }
@@ -38,13 +38,13 @@ void Grid::generateNext()
 	cellsAlive = 0;
 	for (int r = 0; r < m_rows; r++)
 	{
-		for (int c = 0; c < m_collumns; c++)
+		for (int c = 0; c < m_columns; c++)
 		{
 			int neighbours;
 			if (wrapEdges) neighbours = countNeighbours_WrappedEdges(r, c);
 			else neighbours = countNeighbours_NormalEdges(r, c);
-			cell.update(m_grid[r * m_collumns + c], neighbours);
-			m_next[r * m_collumns + c] = cell.nextState();
+			cell.update(m_grid[r * m_columns + c], neighbours);
+			m_next[r * m_columns + c] = cell.nextState();
 			cellsAlive += cell.nextState();
 		}
 	}
@@ -73,30 +73,27 @@ void Grid::wait(int time)
 }
 
 int Grid::countNeighbours_WrappedEdges(int r, int c) {
-	int neighbours = 0;
+	int neighbours = -m_grid[r * m_columns + c];
 	for (int x = -1; x < 2; ++x) {
 		for (int y = -1; y < 2; ++y) {
-			int columnOfNeighbour = (c + x + m_collumns) % m_collumns;
-			int rowOfNeighbour = (r + y + m_rows) % m_rows;
-			neighbours += m_grid[rowOfNeighbour*m_collumns + columnOfNeighbour];
+			neighbours += m_grid[((r + y + m_rows) % m_rows)*m_columns + ((c + x + m_columns) % m_columns)];
 		}
 	}
-	neighbours -= m_grid[r * m_collumns + c];
 	return neighbours;
 }
 
 int Grid::countNeighbours_NormalEdges(int r, int c) {
-	int neighbours = 0;
+	int neighbours = -m_grid[r * m_columns + c];
+	int columnOfNeighbour, rowOfNeighbour;
 	for (int x = -1; x < 2; ++x) {
 		for (int y = -1; y < 2; ++y) {
-			int columnOfNeighbour = c + x;
-			int rowOfNeighbour = r + y;
-			if (columnOfNeighbour >= 0 && columnOfNeighbour < m_collumns && rowOfNeighbour >= 0 && rowOfNeighbour < m_rows)
+			columnOfNeighbour = c + x;
+			rowOfNeighbour = r + y;
+			if (columnOfNeighbour >= 0 && columnOfNeighbour < m_columns && rowOfNeighbour >= 0 && rowOfNeighbour < m_rows)
 			{
-				neighbours += m_grid[rowOfNeighbour*m_collumns + columnOfNeighbour];
+				neighbours += m_grid[rowOfNeighbour*m_columns + columnOfNeighbour];
 			}
 		}
 	}
-	neighbours -= m_grid[r * m_collumns + c];
 	return neighbours;
 }

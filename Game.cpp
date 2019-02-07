@@ -3,8 +3,8 @@
 
 Game::Game(int windowSizeX, int windowSizeY) :
 	window(sf::VideoMode(windowSizeX, windowSizeY), "Game of Life", sf::Style::Titlebar | sf::Style::Close),
-	cellSize(10), gapSize(1), rows(static_cast <int> (windowSizeY / cellSize) - 10), collumns(static_cast <int> (windowSizeX / cellSize)),
-	cellSquare{ sf::Vector2f(cellSize - gapSize, cellSize - gapSize) }, grid(rows, collumns), rulesSquare{ sf::Vector2f(19.f,19.f) }
+	cellSize(10), gapSize(1), rows(static_cast <int> (windowSizeY / cellSize) - 10), columns(static_cast <int> (windowSizeX / cellSize)),
+	cellSquare{ sf::Vector2f(cellSize - gapSize, cellSize - gapSize) }, grid(rows, columns), rulesSquare{ sf::Vector2f(19.f,19.f) }
 {
 	::ShowWindow(::GetConsoleWindow(), SW_HIDE);
 	window.setFramerateLimit(60);
@@ -54,75 +54,64 @@ void Game::processEvents()
 			break;
 		case sf::Event::MouseButtonPressed:
 			if (event.mouseButton.button == sf::Mouse::Left)
-			{
-				//grid input
-				int collumn = static_cast <int>(event.mouseButton.x / cellSize);
+			{	//grid
+				int column = static_cast <int>(event.mouseButton.x / cellSize);
 				int row = static_cast <int>(event.mouseButton.y / cellSize);
-				if (row < rows && collumn < collumns) {
-					grid.setCellState(collumn + row * collumns, !grid.getCellState(collumn + row * collumns));
-					if (!grid.getCellState(collumn + row * collumns)) grid.cellsAlive--;
+				if (row < rows && column < columns) {
+					grid.setCellState(column + row * columns, !grid.getCellState(column + row * columns));
+					if (!grid.getCellState(column + row * columns)) grid.cellsAlive--;
 					else grid.cellsAlive++;
 				}
 				else if (event.mouseButton.x > 150 && event.mouseButton.x < 330 && event.mouseButton.y > menuPosition + 60 && event.mouseButton.y < menuPosition + 100)
-				{
-					//menu input - mouse
-					//changing rules
-					collumn = static_cast <int>(event.mouseButton.x - 150) / 20;
+				{	//changing rules
+					column = static_cast <int>(event.mouseButton.x - 150) / 20;
 					row = static_cast <int>(event.mouseButton.y - menuPosition - 60) / 20;
-					if (row) grid.cell.rulesForDeadCell[collumn] = !grid.cell.rulesForDeadCell[collumn];
-					else  grid.cell.rulesForAliveCell[collumn] = !grid.cell.rulesForAliveCell[collumn];
+					if (row) grid.cell.rulesForDeadCell[column] = !grid.cell.rulesForDeadCell[column];
+					else  grid.cell.rulesForAliveCell[column] = !grid.cell.rulesForAliveCell[column];
 				}
 				else if (event.mouseButton.y > menuPosition + 10 && event.mouseButton.y < menuPosition + 28) {
 					if (event.mouseButton.x > 10 && event.mouseButton.x < 130)
-					{
-						//space
+					{	//space
 						pauseGame = !pauseGame;
 						if (pauseGame) cellSquare.setFillColor(sf::Color::Red);
 						else cellSquare.setFillColor(sf::Color::Green);
 					}
 					else if (event.mouseButton.x > 150 && event.mouseButton.x < 271)
-					{
-						//R
+					{	//R
 						grid.randomize();
 						grid.wait(100);
 					}
 					else if (event.mouseButton.x > 292 && event.mouseButton.x < 365)
-					{
-						//C
+					{	//C
 						grid.clear();
 						grid.wait(100);
 					}
 					else if (event.mouseButton.x > 385 && event.mouseButton.x < 507)
-					{
-						//S
+					{	//S
 						grid.generateNext();
 						pauseGame = 1;
 						cellSquare.setFillColor(sf::Color::Red);
 					}
 					else if (event.mouseButton.x > 528 && event.mouseButton.x < 650)
-					{
-						//E
+					{	//E
 						grid.wrapEdges = !grid.wrapEdges;
 					}
 					else if (event.mouseButton.x > 671 && event.mouseButton.x < 711)
-					{
-						//Left
+					{	//Left
 						if (currentDelayIndex < 7) currentDelayIndex++;
 					}
 					else if (event.mouseButton.x > 720 && event.mouseButton.x < 765)
-					{
-						//Right
+					{	//Right
 						if (currentDelayIndex > 0) currentDelayIndex--;
 					}
 					else if (event.mouseButton.x > 905 && event.mouseButton.x < 1045)
-					{
-						//D
+					{	//D
 						grid.cell.setDefaultRules();
 					}
 				}
 			}
 			break;
-		case sf::Event::KeyPressed: //keyboard input
+		case sf::Event::KeyPressed:
 			switch (event.key.code)
 			{
 			case sf::Keyboard::C:
@@ -177,10 +166,10 @@ void Game::render()
 	for (int r = 0; r < rows; r++)
 	{
 		drawPosY = r * cellSize;
-		for (int c = 0; c < collumns; c++)
+		for (int c = 0; c < columns; c++)
 		{
-			if (grid.getCellState(r*collumns + c)) {
-				drawPosX = (r * collumns + c) % collumns * cellSize;
+			if (grid.getCellState(r*columns + c)) {
+				drawPosX = (r * columns + c) % columns * cellSize;
 				cellSquare.setPosition(sf::Vector2f(drawPosX, drawPosY));
 				window.draw(cellSquare);
 			}
@@ -194,16 +183,16 @@ void Game::render()
 	menuLine.setPosition(0.f, menuPosition + 32);
 	window.draw(menuLine);
 
-	drawText(std::string("[Space] Pause\t[R] Randomize\t[C] Clear\t[S] Single step\t[E]\ Edge mode\t\[Left/Right arrow]\
- Speed\t[D] Default rules"), 18, 10.f, menuPosition + 5, sf::Color::Magenta);
-	drawText(std::string("RULES:"), 24, 0.f, menuPosition + 35, sf::Color::White, sf::Text::Underlined);
-	drawText(std::string("Number of neighbours:"), 14, 150.f, menuPosition + 40);
+	drawText(18, std::string("[Space] Pause\t[R] Randomize\t[C] Clear\t[S] Single step\t[E]\ Edge mode\t\[Left/Right arrow]\
+ Speed\t[D] Default rules"), 10.f, menuPosition + 5, sf::Color::Magenta);
+	drawText(24, std::string("RULES:"), 0.f, menuPosition + 35, sf::Color::White, sf::Text::Underlined);
+	drawText(14, std::string("Number of neighbours:"), 150.f, menuPosition + 40);
 
 	//rules
 	drawPosX = 150;
 	drawPosY = menuPosition + 60;
-	drawText(std::string("Alive dies:"), 14, 0.f, drawPosY + 4);
-	drawText(std::string("Dead becomes alive:"), 14, 0.f, drawPosY + 24);
+	drawText(14, std::string("Alive dies:"), 0.f, drawPosY + 4);
+	drawText(14, std::string("Dead becomes alive:"), 0.f, drawPosY + 24);
 	for (int textRow = 0; textRow < 2; textRow++)
 	{
 		for (int i = 0; i < 9; i++)
@@ -213,23 +202,23 @@ void Game::render()
 			else rulesSquare.setFillColor(sf::Color::Black);
 			rulesSquare.setPosition(sf::Vector2f(drawPosX + i * 20, drawPosY));
 			window.draw(rulesSquare);
-			drawText(std::to_string(i), 10, drawPosX + 1 + i * 20, drawPosY, sf::Color::Black);
+			drawText(10, std::to_string(i), drawPosX + 1 + i * 20, drawPosY, sf::Color::Black);
 		}
 		drawPosY += 20;
 	}
 	//info
-	drawText(std::string("Delay: ").append(std::to_string(delay[currentDelayIndex])).append(" ms"), 14, 400.f, menuPosition + 40);
-	drawText(std::string("Edge mode: ").append(grid.wrapEdges ? "Wrapped" : "Normal"), 14, 400.f, menuPosition + 60);
-	drawText(std::string("Current generation: ").append(std::to_string(grid.currentGeneration)), 14, 600.f, menuPosition + 40);
-	drawText(std::string("Cells alive: ").append(std::to_string(grid.cellsAlive)), 14, 600.f, menuPosition + 60);
+	drawText(14, std::string("Delay: ").append(std::to_string(delay[currentDelayIndex])).append(" ms"), 400.f, menuPosition + 40);
+	drawText(14, std::string("Edge mode: ").append(grid.wrapEdges ? "Wrapped" : "Normal"), 400.f, menuPosition + 60);
+	drawText(14, std::string("Current generation: ").append(std::to_string(grid.currentGeneration)), 600.f, menuPosition + 40);
+	drawText(14, std::string("Cells alive: ").append(std::to_string(grid.cellsAlive)), 600.f, menuPosition + 60);
 
 	window.display();
 }
 
-void Game::drawText(std::string message, int size, float posX, float posY, sf::Color color, sf::Text::Style style)
+void Game::drawText(int size, std::string message, float posX, float posY, sf::Color color, sf::Text::Style style)
 {
-	text.setString(message);
 	text.setCharacterSize(size);
+	text.setString(message);
 	text.setPosition(posX, posY);
 	text.setFillColor(color);
 	text.setStyle(style);

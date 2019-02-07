@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Cell.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="File.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameOfLife.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="Grid.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Cell.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="File.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Grid.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Icon1.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="header files">
+      <UniqueIdentifier>{ad2a6bd3-e3e6-4e9b-bbed-0e60d62f5b61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source files">
+      <UniqueIdentifier>{12ca5e2e-e5b3-4f48-93ae-7146bc9ae37e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
