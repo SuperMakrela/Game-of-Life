@@ -206,7 +206,7 @@ void Game::buttonLeft() {
 	if (currentDelayIndex < 7) currentDelayIndex++;
 }
 void Game::buttonRight() {
-	if (currentDelayIndex < 7) currentDelayIndex--;
+	if (currentDelayIndex > 0) currentDelayIndex--;
 }
 void Game::buttonD() {
 	grid.cell.setDefaultRules();
