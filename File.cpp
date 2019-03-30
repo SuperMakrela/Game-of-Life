@@ -18,7 +18,7 @@ void File::loadRules()
 	{
 		string line;
 		getline(file, line); //comment in file
-		getline(file, line); //deadBecomesAlive rules
+		getline(file, line); //dead cell becomes alive rules
 
 		istringstream ss(line);
 		int num;
@@ -27,7 +27,7 @@ void File::loadRules()
 			deadBecomesAlive.push_back(num);
 		}
 		getline(file, line); //comment in file
-		getline(file, line); //aliveDies rules
+		getline(file, line); //alive cell dies rules
 
 		ss.str(line);
 		ss.clear();
